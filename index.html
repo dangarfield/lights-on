@@ -16,7 +16,6 @@
             background-image: linear-gradient(120deg, #84fab0 0%, #8fd3f4 100%);
         }
 
-        .light,
         .button,
         .reset {
             cursor: pointer;
@@ -44,6 +43,31 @@
         <div class="row">
             <div class="col-3 col-sm-1 mb-3">
                 <img class="reset w-100" src="img/reset.png">
+            </div>
+            <div class="col col-sm-1 mb-3">
+                <div class="form-floating">
+                    <select class="form-select select-lights" id="select-lights">
+                        <option value="3" selected>3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                        <option value="7">7</option>
+                    </select>
+                    <label for="select-lights">Lights</label>
+                </div>
+
+            </div>
+            <div class="col col-sm-1 mb-3">
+                <div class="form-floating">
+                    <select class="form-select select-buttons" id="select-buttons">
+                        <option value="3" selected>3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                        <option value="7">7</option>
+                    </select>
+                    <label for="select-buttons">Buttons</label>
+                </div>
             </div>
         </div>
     </div>
@@ -141,8 +165,28 @@
             </div>`
         }
     }
-    const bindInputs = () => {
-
+    const unbindButtons = () => {
+        // TODO
+    }
+    const bindSelects = () => {
+        document.querySelector('.select-lights').addEventListener('change', function() {
+            console.log('You selected: ', this.value);
+            unbindButtons()
+            data.lightCount = parseInt(this.value)
+            reset()
+            draw()
+            bindButtons()
+        })
+        document.querySelector('.select-buttons').addEventListener('change', function() {
+            console.log('You selected: ', this.value)
+            unbindButtons()
+            data.buttonCount = parseInt(this.value)
+            reset()
+            draw()
+            bindButtons()
+        })
+    }
+    const bindButtons = () => {
         Array.from(document.querySelectorAll('.buttons .button')).forEach(button => {
             button.addEventListener('click', function() {
                 if (!data.active) {
@@ -154,10 +198,13 @@
                 applyActionAndUpdate(action)
             })
         })
+
+
+    }
+    const bindReset = () => {
         document.querySelector('.reset').addEventListener('click', function() {
             reset()
         })
-
     }
     const applyActionAndUpdate = (action) => {
         console.log('applyActionAndUpdate', data.lightCount, action)
@@ -192,13 +239,18 @@
     const reset = () => {
         setup()
         for (let i = 0; i < data.lightCount; i++) {
-            document.querySelector(`.lights .light[data-index="${i}"]`).setAttribute('src', 'img/led-off.png')
+            const light = document.querySelector(`.lights .light[data-index="${i}"]`)
+            if (light) {
+                light.setAttribute('src', 'img/led-off.png')
+            }
         }
     }
     const init = () => {
         setup()
         draw()
-        bindInputs()
+        bindSelects()
+        bindButtons()
+        bindReset()
     }
     init()
 </script>
