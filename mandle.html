@@ -1,0 +1,33 @@
+<canvas id="joe" width="1000" height="1000"></canvas>
+<script>
+    m = document.querySelector('#joe').getContext('2d')
+    atom = function(x, y, c) {
+        m.fillStyle = c
+        m.fillRect(x, y, 3, 3)
+    }
+
+    for (let x = 1; x < 1000; x++) {
+        for (let y = 1; y < 1000; y++) {
+
+            dx = (x - 500) / 2000 - 0.12
+            dy = (y - 500) / 2000 - 0.82
+            a = dx
+            b = dy
+
+
+            for (let t = 1; t < 200; t++) {
+                d = (a * a) - (b * b) + dx
+                b = 2 * (a * b) + dy
+                a = d
+
+
+                H = d > 200
+                if (H) {
+                    atom(x, y, `rgb(${t*3},${t},${t*0.5})`)
+                    break
+                }
+
+            }
+        }
+    }
+</script>

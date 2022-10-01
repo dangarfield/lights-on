@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Button Game</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        html {
+            height: 100%;
+        }
+
+        body {
+            width: 100%;
+            background-image: linear-gradient(120deg, #84fab0 0%, #8fd3f4 100%);
+        }
+
+        .light,
+        .button,
+        .reset {
+            cursor: pointer;
+        }
+
+        .navbar>.container {
+            flex-direction: row-reverse;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="row text-center">
+            <h1 class="title">Press the buttons to turn the lights on</h1>
+        </div>
+        <div class="row lights mt-5"></div>
+        <div class="row buttons mt-5"></div>
+
+
+    </div>
+    <div class="navbar fixed-bottom">
+        <div class="container">
+            <div class="navbar-brand">
+                <img class="reset" src="img/reset.png" alt="" width="100" height="100">
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
+
+<script>
+    const data = {
+        buttonCount: 3,
+        lightCount: 3,
+        buttonActions: [],
+        lightState: [],
+        active: true
+    }
+    const generateActions = () => {
+        data.buttonActions = []
+        for (let i = 0; i < data.buttonCount; i++) {
+            data.buttonActions.push(generateAction())
+        }
+        if (!validateActions()) {
+            generateActions()
+        }
+    }
+    const generateAction = () => {
+        function randomIntFromInterval(min, max) {
+            return Math.floor(Math.random() * (max - min + 1) + min)
+        }
+        const max = randomIntFromInterval(0, data.lightCount - 2)
+        const action = new Array(data.lightCount).fill(0)
+            .map((x, i) => ({
+                x,
+                i,
+                r: Math.random()
+            }))
+            .sort((a, b) => a.r - b.r)
+            .map((a, si) => ({
+                x: si <= max ? 1 : 0,
+                i: a.i,
+                si,
+                r: a.r
+            }))
+            .sort((a, b) => a.i - b.i)
+            .map(a => a.x)
+        // .slice(0, n);
+        console.log('generateAction', JSON.stringify(action))
+        return action
+    }
+    const validateActions = () => {
+
+
+        // All lights have to have an action
+        for (let i = 0; i < data.lightCount; i++) {
+            let total = 0
+            for (let j = 0; j < data.buttonCount; j++) {
+                total += data.buttonActions[j][i]
+            }
+            // console.log('total', total, data.buttonActions)
+            if (total === 0) {
+                console.log('validate', false, 'not all lights have toggle')
+                return false
+            }
+        }
+
+        // No duplicated patterns
+        const alreadySeen = []
+        for (const action of data.buttonActions) {
+            // console.log('alreadySeen', alreadySeen, action)
+            if (alreadySeen.includes(JSON.stringify(action))) {
+                console.log('validate', false, 'duplicated patterns')
+                return false
+            }
+            alreadySeen.push(JSON.stringify(action))
+        }
+        console.log('validate', true)
+        return true
+    }
+
+    const setup = () => {
+        generateActions()
+        data.lightState = new Array(data.lightCount).fill(0)
+        console.log('data', data)
+    }
+    const draw = () => {
+        document.querySelector('.lights').innerHTML = ''
+        for (let i = 0; i < data.lightCount; i++) {
+            document.querySelector('.lights').innerHTML += `<div class="col">
+                <img src="img/led-off.png" class="light img-fluid p-1" data-index="${i}" />
+            </div>`
+        }
+        document.querySelector('.buttons').innerHTML = ''
+        for (let i = 0; i < data.buttonCount; i++) {
+            document.querySelector('.buttons').innerHTML += `<div class="col">
+                <img src="img/btn.png" class="button img-fluid p-1" data-index="${i}" />
+            </div>`
+        }
+    }
+    const bindInputs = () => {
+
+        Array.from(document.querySelectorAll('.buttons .button')).forEach(button => {
+            button.addEventListener('click', function() {
+                if (!data.active) {
+                    return
+                }
+                const action = data.buttonActions[button.getAttribute('data-index')]
+                console.log('action', action)
+                console.log('button', button, button.getAttribute('data-index'), action)
+                applyActionAndUpdate(action)
+            })
+        })
+        document.querySelector('.reset').addEventListener('click', function() {
+            reset()
+        })
+
+    }
+    const applyActionAndUpdate = (action) => {
+        console.log('applyActionAndUpdate', data.lightCount, action)
+
+        for (let i = 0; i < data.lightCount; i++) {
+            if (action[i] === 1) {
+                data.lightState[i] = data.lightState[i] === 0 ? 1 : 0
+                const light = document.querySelector(`.lights .light[data-index="${i}"]`)
+                if (data.lightState[i]) {
+                    // light.classList.add('on')
+                    light.setAttribute('src', 'img/led-on.png')
+                } else {
+                    // light.classList.remove('on')
+                    light.setAttribute('src', 'img/led-off.png')
+                }
+            }
+        }
+        console.log('applyActionAndUpdate updated', data.lightState, action)
+        if (data.lightState.reduce((partialSum, a) => partialSum + a, 0) === data.lightCount) {
+            // window.alert('You won!')
+            data.active = false
+            document.querySelector('.title').textContent = 'You won!!'
+            setTimeout(function() {
+                console.log('active')
+                data.active = true
+                document.querySelector('.title').textContent = 'Press the buttons to turn the lights on'
+                reset()
+            }, 1000)
+
+        }
+    }
+    const reset = () => {
+        setup()
+        for (let i = 0; i < data.lightCount; i++) {
+            document.querySelector(`.lights .light[data-index="${i}"]`).setAttribute('src', 'img/led-off.png')
+        }
+    }
+    const init = () => {
+        setup()
+        draw()
+        bindInputs()
+    }
+    init()
+</script>
