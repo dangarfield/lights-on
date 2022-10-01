@@ -22,8 +22,12 @@
             cursor: pointer;
         }
 
-        .navbar>.container {
+        .fixed-bottom>.row {
             flex-direction: row-reverse;
+        }
+
+        .title {
+            min-height: 70px;
         }
     </style>
 </head>
@@ -35,13 +39,11 @@
         </div>
         <div class="row lights mt-5"></div>
         <div class="row buttons mt-5"></div>
-
-
     </div>
-    <div class="navbar fixed-bottom">
-        <div class="container">
-            <div class="navbar-brand">
-                <img class="reset" src="img/reset.png" alt="" width="100" height="100">
+    <div class="container fixed-bottom">
+        <div class="row">
+            <div class="col-3 col-sm-1 mb-3">
+                <img class="reset w-100" src="img/reset.png">
             </div>
         </div>
     </div>
@@ -177,7 +179,7 @@
         if (data.lightState.reduce((partialSum, a) => partialSum + a, 0) === data.lightCount) {
             // window.alert('You won!')
             data.active = false
-            document.querySelector('.title').textContent = 'You won!!'
+            document.querySelector('.title').textContent = 'You won!'
             setTimeout(function() {
                 console.log('active')
                 data.active = true
