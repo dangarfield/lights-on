@@ -1,0 +1,98 @@
+<canvas id="life" width="1000" height="1000"></canvas>
+<script>
+    //Hunar Ahmad @ brainxyz
+    m = document.getElementById("life").getContext("2d");
+    draw = (x, y, c, s) => {
+        m.fillStyle = c;
+        m.fillRect(x, y, s, s);
+    };
+    atoms = [];
+    atom = (x, y, c, m) => {
+        return {
+            x: x,
+            y: y,
+            vx: 0,
+            vy: 0,
+            color: c,
+            mass: m
+        };
+    };
+    random = () => {
+        return Math.random() * 900 + 50;
+    };
+    create = (number, {
+        r,
+        g,
+        b
+    }, mass) => {
+        group = [];
+        for (let i = 0; i < number; i++) {
+            group.length > 150 && r == 255 && g == 255 ? b = 255 : null;
+            //      group.length<50?g--:b--;
+
+            group.push(atom(random(), random(), "rgb(" + r + "," + g + "," + b + ")", mass));
+            atoms.push(group[i]);
+        }
+        return group;
+    };
+    rule = (atoms1, atoms2, g) => {
+        for (let i = 0; i < atoms1.length; i++) {
+            fx = 0;
+            fy = 0;
+            for (let j = 0; j < atoms2.length; j++) {
+                a = atoms1[i];
+                b = atoms2[j];
+                dx = a.x - b.x;
+                dy = a.y - b.y;
+                d = Math.sqrt(dx * dx + dy * dy);
+                if (d > 0 && d < 80) {
+                    //F = (g * atoms2[j].mass * atoms1[i].mass) / d;
+                    F = (g * 1) / d;
+                    fx += F * dx;
+                    fy += F * dy;
+                }
+            }
+            a.vx = (a.vx + fx) * 0.5;
+            a.vy = (a.vy + fy) * 0.5;
+            a.x += a.vx;
+            a.y += a.vy;
+            if (a.x <= 0 || a.x >= 1000) {
+                a.vx *= -1;
+            }
+            if (a.y <= 0 || a.y >= 1000) {
+                a.vy *= -1;
+            }
+        }
+    };
+    yellow = create(200, {
+        r: 255,
+        g: 255,
+        b: 0
+    }, 2.2);
+    red = create(200, {
+        r: 255,
+        g: 0,
+        b: 0
+    }, 4.9);
+    green = create(200, {
+        r: 0,
+        g: 255,
+        b: 0
+    }, 1.1);
+    update = () => {
+        rule(green, green, -0.32);
+        rule(green, red, -0.17);
+        rule(green, yellow, 0.34);
+        rule(red, red, -0.1);
+        rule(red, green, -0.34);
+        rule(yellow, yellow, 0.15);
+        rule(yellow, green, -0.2);
+        m.clearRect(0, 0, 1000, 1000);
+        draw(0, 0, "black", 1000);
+        for (i = 0; i < atoms.length; i++) {
+            draw(atoms[i].x, atoms[i].y, atoms[i].color, atoms[i].mass);
+        }
+        requestAnimationFrame(update);
+    };
+    update();
+</script>
